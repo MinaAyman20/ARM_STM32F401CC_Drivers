@@ -1,0 +1,34 @@
+---
+:source:
+  :path: test
+  :file: test_led.c
+:successes:
+- :test: test_HLED_vLedInit_ValidParameters
+  :line: 16
+  :message: ''
+  :unity_test_time: 0
+- :test: test_HLED_vSetLedStatus_ValidParamters
+  :line: 37
+  :message: ''
+  :unity_test_time: 0
+- :test: test_LED_TurnOn
+  :line: 52
+  :message: ''
+  :unity_test_time: 0
+- :test: test_LED_TurnOff
+  :line: 60
+  :message: ''
+  :unity_test_time: 0
+- :test: test_LED_InvalidStatus
+  :line: 92
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 5
+  :passed: 5
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.04212759999973059
