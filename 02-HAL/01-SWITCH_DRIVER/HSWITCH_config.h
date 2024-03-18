@@ -6,10 +6,6 @@ typedef enum
 {
     Switch_1,           // Switch 1
 
-
-
-    
-
     _Switch_Num         // Total number of switches (must be last)
 } Switches_t;
 
