@@ -68,8 +68,7 @@ u32 HSWITCH_u32GetSwitchState(u32 Switch);
  * Returns:
  *     HSWITCH_enuErrorStatus_t value indicating the status of the operation.
  */
-
-//HSWITCH_enuErrorStatus_t HSWITCH_enuGetSwitchState(u8 Copy_u8SwitchName, u8* Add_u8State);
+HSWITCH_enuErrorStatus_t HSWITCH_enuGetSwitchState(u8 Copy_u8SwitchName, u8* Add_u8State);
 
 
 #endif

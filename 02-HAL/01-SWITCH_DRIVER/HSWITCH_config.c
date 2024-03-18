@@ -19,7 +19,7 @@ const Switch_CFG_t SWITCHES [_Switch_Num]=
 {
     .Switch_Port=GPIO_PORTB,
     .Switch_Pin=GPIO_PIN0,
-    .Switch_Connection=SWITCH_CONN_PULLUP,
+    .Switch_Connection=SWITCH_CONN_PULLDOWN,
     //.Switch_InitStatus=SWITCH_STATUS_RELEASED,
 }
 };
