@@ -23,7 +23,7 @@
 #define GPIO_SHIFTING_VALUE_ONE       0x00000001
 
 #define GPIO_PORT_MAX                 5 
-#define GPIO_PIN_MAX                  15 
+#define GPIO_PIN_MAX                  16 
 
 #define GPIO_BSBR_RESET_SHFTING_MASK  0x00000010
 

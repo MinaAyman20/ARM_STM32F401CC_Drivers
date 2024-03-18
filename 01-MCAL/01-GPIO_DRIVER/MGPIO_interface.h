@@ -18,23 +18,41 @@
 #define GPIO_PORTE 4
 #define GPIO_PORTH 5
 
+// // Definition of GPIO pins
+// #define GPIO_PIN0    0x00000000
+// #define GPIO_PIN1    0x00000001
+// #define GPIO_PIN2    0x00000002
+// #define GPIO_PIN3    0x00000004
+// #define GPIO_PIN4    0x00000008
+// #define GPIO_PIN5    0x00000010
+// #define GPIO_PIN6    0x00000020
+// #define GPIO_PIN7    0x00000040
+// #define GPIO_PIN8    0x00000080
+// #define GPIO_PIN9    0x00000100
+// #define GPIO_PIN10   0x00000200
+// #define GPIO_PIN11   0x00000400
+// #define GPIO_PIN12   0x00000800
+// #define GPIO_PIN13   0x00001000
+// #define GPIO_PIN14   0x00002000
+// #define GPIO_PIN15   0x00004000
+
 // Definition of GPIO pins
-#define GPIO_PIN0    0x00000000
-#define GPIO_PIN1    0x00000001
-#define GPIO_PIN2    0x00000002
-#define GPIO_PIN3    0x00000004
-#define GPIO_PIN4    0x00000008
-#define GPIO_PIN5    0x00000010
-#define GPIO_PIN6    0x00000020
-#define GPIO_PIN7    0x00000040
-#define GPIO_PIN8    0x00000080
-#define GPIO_PIN9    0x00000100
-#define GPIO_PIN10   0x00000200
-#define GPIO_PIN11   0x00000400
-#define GPIO_PIN12   0x00000800
-#define GPIO_PIN13   0x00001000
-#define GPIO_PIN14   0x00002000
-#define GPIO_PIN15   0x00004000
+#define GPIO_PIN0    0
+#define GPIO_PIN1    1
+#define GPIO_PIN2    2
+#define GPIO_PIN3    3
+#define GPIO_PIN4    4
+#define GPIO_PIN5    5
+#define GPIO_PIN6    6
+#define GPIO_PIN7    7
+#define GPIO_PIN8    8
+#define GPIO_PIN9    9
+#define GPIO_PIN10   10
+#define GPIO_PIN11   11
+#define GPIO_PIN12   12
+#define GPIO_PIN13   13
+#define GPIO_PIN14   14
+#define GPIO_PIN15   15
 
 // Definition of GPIO pin modes
 #define GPIO_INPUT    0x00
