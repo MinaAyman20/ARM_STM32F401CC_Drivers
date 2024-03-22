@@ -13,7 +13,7 @@ void HLED_vLedInit(void)
     LED.GPIOSpeed=GPIO_HIGH_SPEED;
     LED.GPIO_INPUTTYPE=GPIO_NO_PULLUPPULLDOWN;
 
-    for (LOC_u8IDX = 0; LOC_u8IDX<_Led_Num;LOC_u8IDX++)
+    for (LOC_u8IDX = 0; LOC_u8IDX <_Led_Num ;LOC_u8IDX++)
     {
         LED.GPIOPort=LEDS[LOC_u8IDX].Led_Port;
         LED.GPIOPin=LEDS[LOC_u8IDX].Led_Pin;
@@ -24,7 +24,13 @@ void HLED_vLedInit(void)
 }
 
 void HLED_vSetLedStatus(u32 LED,u8 Status)
-{
+{   
     MGPIO_enuSetPinValue(LEDS[LED].Led_Port,LEDS[LED].Led_Pin,LEDS[LED].Led_Connection ^ Status );
 }
 
+void HLED_vToggle(u32 LED)
+{
+    u32 Led_State = 0;  
+    MGPIO_getPinValue(LEDS[LED].Led_Port, LEDS[LED].Led_Pin, &Led_State);
+    MGPIO_enuSetPinValue(LEDS[LED].Led_Port, LEDS[LED].Led_Pin, Led_State ^ 1);
+}

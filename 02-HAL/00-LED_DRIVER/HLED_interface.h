@@ -50,4 +50,17 @@ void HLED_vLedInit(void);
  */
 void HLED_vSetLedStatus(u32 LED, u8 Status); 
 
+/**
+ * @brief Toggles the state of an LED connected to a microcontroller.
+ *
+ * This function toggles the state of an LED specified by its index.
+ * It reads the current state of the LED, then toggles it to the opposite state.
+ * If the LED was off, it turns it on, and vice versa.
+ *
+ * @param LED Index of the LED to toggle.
+ * 
+ * @return None
+ */
+void HLED_vToggle(u32 LED);
+
 #endif
