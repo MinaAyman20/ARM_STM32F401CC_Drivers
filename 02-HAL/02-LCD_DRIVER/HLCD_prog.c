@@ -10,88 +10,95 @@
 #include "MCAL/MGPIO/MGPIO_interface.h"
 #include "LIB/Bit_Math.h"
 
+// Define enumerated type for the enable state of the LCD
 typedef enum{
-    LCD_enuEnableOff,
-    LCD_enuEnableOn
+    LCD_enuEnableOff,     // LCD enable is off
+    LCD_enuEnableOn       // LCD enable is on
 }LCD_enuEnableState;
 
+// Define enumerated type for the request state of the LCD
 typedef enum{
-    LCD_REQ_IDLE,
-    LCD_REQ_BUSY
+    LCD_REQ_IDLE,         // LCD request is idle
+    LCD_REQ_BUSY          // LCD request is busy
 }LCD_enuReqState;
 
+// Define enumerated type for the type of request for the LCD
 typedef enum{
-    LCD_Write_REQ,
-    LCD_Clear_REQ,
-    LCD_No_REQ
+    LCD_Write_REQ,        // LCD write request
+    LCD_Clear_REQ,        // LCD clear request
+    LCD_No_REQ            // No LCD request
 }LCD_enuReqType;
 
+// Define enumerated type for the state of the LCD
 typedef enum
 {
-	INIT_STATE,
-	OPERATION_STATE,
-	OFF_STATE,
+	INIT_STATE,           // Initialization state
+	OPERATION_STATE,      // Operation state
+	OFF_STATE             // Off state
 }LCD_State;
 
+// Define enumerated type for the initialization states of the LCD
 typedef enum
 {   
-	INIT_START,
-	First_Part_FUNCTION_SET,
-	Second_Part_FUNCTION_SET,
-	DISPLAY_ON_OFF,
-	CLEAR_DISPLAY,
-	ENTRY_MODE,
-    START_ADDRESS,
-	LCD_DONE,
+	INIT_START,                     // Initial start state
+	First_Part_FUNCTION_SET,        // First part of function set state
+	Second_Part_FUNCTION_SET,       // Second part of function set state
+	DISPLAY_ON_OFF,                 // Display on/off state
+	CLEAR_DISPLAY,                  // Clear display state
+	ENTRY_MODE,                     // Entry mode state
+    START_ADDRESS,                  // Start address state
+	LCD_DONE                        // LCD done state
 }LCD_InitStates;
 
+// Define enumerated type for the write states of the LCD
 typedef enum
 {   
-	Write_START,
-	Write_SetPostion,
-    Write_Character,
-    Write_Done
+	Write_START,          // Write start state
+	Write_SetPostion,    // Write set position state
+    Write_Character,     // Write character state
+    Write_Done           // Write done state
 }LCD_WriteStates;
+
+// Define enumerated type for the clear states of the LCD
 typedef enum
 {   
-	Clear_START,
-	Clear_Screen,
-    Clear_Done,
+	Clear_START,          // Clear start state
+	Clear_Screen,         // Clear screen state
+    Clear_Done            // Clear done state
 }LCD_ClearStates;
 
-
+// Define a structure for user data for the LCD
 typedef struct 
 {
-    const char*              String        ;
-    u8                       String_Size   ;
-    HLCD_enuDDRAM_XPosition  X_Postion     ;
-    HLCD_enuDDRAM_YPosition  Y_Postion     ;
-    LCD_enuReqState          Req_State     ;
-    LCD_enuReqType           Req_Type      ;
+    const char*              String        ;  // Pointer to the string to be written
+    u8                       String_Size   ;  // Size of the string
+    HLCD_enuDDRAM_XPosition  X_Postion     ;  // X position in DDRAM
+    HLCD_enuDDRAM_YPosition  Y_Postion     ;  // Y position in DDRAM
+    LCD_enuReqState          Req_State     ;  // Request state
+    LCD_enuReqType           Req_Type      ;  // Request type
 }LCD_USER_DATA_t;
 
 /************************************Global Variables************************************************************/
-static LCD_State          Global_LCDState        = OFF_STATE       ;
-static LCD_InitStates     Global_LCDInit_State   = INIT_START      ;
-static LCD_enuEnableState Global_LCDEnable_State = LCD_enuEnableOff;
-static LCD_WriteStates    Global_LCDWrite_State  = Write_START     ;
-static LCD_ClearStates    Global_LCDClear_State  = Clear_START     ;
- u8 remaining_chars = 0;
- static u8 send_higher_nibble=1;
+static LCD_State          Global_LCDState        = OFF_STATE       ;  // Global variable for the state of the LCD
+static LCD_InitStates     Global_LCDInit_State   = INIT_START      ;  // Global variable for the initialization state of the LCD
+static LCD_enuEnableState Global_LCDEnable_State = LCD_enuEnableOff; // Global variable for the enable state of the LCD
+static LCD_WriteStates    Global_LCDWrite_State  = Write_START     ;  // Global variable for the write state of the LCD
+static LCD_ClearStates    Global_LCDClear_State  = Clear_START     ;  // Global variable for the clear state of the LCD
+u8 remaining_chars = 0;                                              // Global variable for remaining characters to write
+static u8 send_higher_nibble=1;                                      // Global variable to indicate whether to send higher nibble or not
 /*******************************************Prototypes of Static Function****************************************/
-static void HLCD_vidInitProcess(void);
-static void HLCD_vidWriteProc  (void);
-static void HLCD_vidClearProc  (void);
+static void HLCD_vidInitProcess(void);        // Prototype for LCD initialization process function
+static void HLCD_vidWriteProc(void);           // Prototype for LCD write process function
+static void HLCD_vidClearProc(void);           // Prototype for LCD clear process function
 /****************************************************************************************************************/
 /*******************************************************************************************************************/
-static LCD_USER_DATA_t   LCD_strUsrData ;
-extern HLCD_strLCDConfigration LCD_PINS[USED_LCD_PIN_NUMS];
+static LCD_USER_DATA_t   LCD_strUsrData ;      // Global variable for user data of the LCD
+extern HLCD_strLCDConfigration LCD_PINS[USED_LCD_PIN_NUMS];  // External declaration of LCD pins configuration
 /*******************************************End of user Synch Function********************************************/
 
 /*****************************************Ashync****************************************************************/
 void HLCD_vidPinInit(void)
 {
-  
 	/* INDEXING PINS TO CONFIGURE */
     u8 Loc_u8PinIndex = 0;
     /* STRUCTURE OF GPIO CONFIGURATION */
@@ -114,7 +121,7 @@ void HLCD_vidPinInit(void)
 
 void HLCD_voidLCDInitASYNCH(void)
 {
-	Global_LCDState = INIT_STATE ;
+	Global_LCDState = INIT_STATE ;  // Set global LCD state to initialization state
 }
 
 static void HLCD_vidStaticSetEnableBit(u8 Copy_u8Value)
@@ -122,13 +129,17 @@ static void HLCD_vidStaticSetEnableBit(u8 Copy_u8Value)
     MGPIO_enuSetPinValue(LCD_PINS[LCD_ENABLE_PIN].LCD_PortNum, LCD_PINS[LCD_ENABLE_PIN].LCD_PinNum, Copy_u8Value);
 }
 
+
 static void HLCD_StaticSendCommand(u8 Copy_u8Command,u8 RW_Value,u8 RS_Value)
 {
-	
+    // Set the value of the RW pin
     MGPIO_enuSetPinValue(LCD_PINS[LCD_RW_PIN].LCD_PortNum, LCD_PINS[LCD_RW_PIN].LCD_PinNum, RW_Value);
+    
+    // Set the value of the RS pin
     MGPIO_enuSetPinValue(LCD_PINS[LCD_RS_PIN].LCD_PortNum, LCD_PINS[LCD_RS_PIN].LCD_PinNum, RS_Value);
     
-    #if HLCD_BIT_MODE == HLCD_enu8BIT_MODE
+#if HLCD_BIT_MODE == HLCD_enu8BIT_MODE
+    // Send each bit of the command to the corresponding data pins
     MGPIO_enuSetPinValue(LCD_PINS[LCD_D0_PIN].LCD_PortNum, LCD_PINS[LCD_D0_PIN].LCD_PinNum, GET_BIT(Copy_u8Command,0));
     MGPIO_enuSetPinValue(LCD_PINS[LCD_D1_PIN].LCD_PortNum, LCD_PINS[LCD_D1_PIN].LCD_PinNum, GET_BIT(Copy_u8Command,1));
     MGPIO_enuSetPinValue(LCD_PINS[LCD_D2_PIN].LCD_PortNum, LCD_PINS[LCD_D2_PIN].LCD_PinNum, GET_BIT(Copy_u8Command,2));
@@ -137,8 +148,8 @@ static void HLCD_StaticSendCommand(u8 Copy_u8Command,u8 RW_Value,u8 RS_Value)
     MGPIO_enuSetPinValue(LCD_PINS[LCD_D5_PIN].LCD_PortNum, LCD_PINS[LCD_D5_PIN].LCD_PinNum, GET_BIT(Copy_u8Command,5));
     MGPIO_enuSetPinValue(LCD_PINS[LCD_D6_PIN].LCD_PortNum, LCD_PINS[LCD_D6_PIN].LCD_PinNum, GET_BIT(Copy_u8Command,6));
     MGPIO_enuSetPinValue(LCD_PINS[LCD_D7_PIN].LCD_PortNum, LCD_PINS[LCD_D7_PIN].LCD_PinNum, GET_BIT(Copy_u8Command,7));
-    
-    #elif HLCD_BIT_MODE == HLCD_enu4BIT_MODE
+#elif HLCD_BIT_MODE == HLCD_enu4BIT_MODE
+    // Check if it's time to send the higher or lower nibble of data
     if (send_higher_nibble) {
         // Send the higher nibble of data (4 most significant bits)
         MGPIO_enuSetPinValue(LCD_PINS[LCD_D4_PIN].LCD_PortNum, LCD_PINS[LCD_D4_PIN].LCD_PinNum, GET_BIT(Copy_u8Command, 4));
@@ -154,85 +165,111 @@ static void HLCD_StaticSendCommand(u8 Copy_u8Command,u8 RW_Value,u8 RS_Value)
     }
 
     // Toggle the send_higher_nibble variable for next call
-      send_higher_nibble = !send_higher_nibble;
+    send_higher_nibble = !send_higher_nibble;
 #endif
-
 }
 
 void HLCD_vTask(void)
 {
+    // Check if the LCD is in the INIT_STATE
     if(Global_LCDState == INIT_STATE )
 	{
+           // Initialize the LCD
            HLCD_vidInitProcess();
 	}
+    // Check if the LCD is in the OPERATION_STATE
     else if (Global_LCDState == OPERATION_STATE )
 	{
-       if(LCD_strUsrData.Req_State == LCD_REQ_BUSY)  //it means that there is a request from user
+       // Check if there is a request from the user
+       if(LCD_strUsrData.Req_State == LCD_REQ_BUSY)
        {
+          // Process the request based on its type
           switch ( LCD_strUsrData.Req_Type)
           {
             case LCD_No_REQ: 
             // Do Nothing for LCD_No_REQ
             break;
             case LCD_Write_REQ :
+             // Process a write request
              HLCD_vidWriteProc();
             break;
             case LCD_Clear_REQ :
+            // Process a clear request
             HLCD_vidClearProc();
             break;
-
           }
        }
 	}
-
 }
 
 void HLCD_vidInitProcess()
 { 
+    // Switch statement to handle different stages of LCD initialization
     switch (Global_LCDInit_State)
     {
+        // Case for the initial start
         case INIT_START:
         {   
+            // Move to the next stage of initialization
             Global_LCDInit_State = First_Part_FUNCTION_SET;
+            // Initialize LCD enable state and set it to off
             Global_LCDEnable_State = LCD_enuEnableOff;
+            // Set the enable bit of the LCD to off
             HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
         }
         break;
         
+        // Case for the first part of the function set
         case First_Part_FUNCTION_SET: 
         {
+            // Check the bit mode (8-bit or 4-bit)
 #if HLCD_BIT_MODE == HLCD_enu8BIT_MODE
+            // Check if the LCD enable state is off
             if (Global_LCDEnable_State == LCD_enuEnableOff) {
+                // Send 8-bit function set command
                 HLCD_StaticSendCommand(HLCD_FUNCTION_SET_8BIT_CMD, LCD_RESETVALUE, LCD_RESETVALUE);
+                // Change LCD enable state to on
                 Global_LCDEnable_State = LCD_enuEnableOn;
+                // Set the enable bit of the LCD to on
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
             } else {
+                // Change LCD enable state to off
                 Global_LCDEnable_State = LCD_enuEnableOff;
+                // Set the enable bit of the LCD to off
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
+                // Move to the next stage of initialization
                 Global_LCDInit_State = DISPLAY_ON_OFF;
             }
 #elif HLCD_BIT_MODE == HLCD_enu4BIT_MODE
+            // Check if the LCD enable state is off
             if (Global_LCDEnable_State == LCD_enuEnableOff) 
             {
+                // Check if it's time to send the higher or lower nibble
                 if (send_higher_nibble) 
                 {
-                    // Send the higher nibble
-                     HLCD_StaticSendCommand(HIGH_NIBBLE(HLCD_Fixed1_FunctionSet_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
+                    // Send the higher nibble of the function set command
+                    HLCD_StaticSendCommand(HIGH_NIBBLE(HLCD_Fixed1_FunctionSet_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
                 } else 
                 {
-                    // Send the lower nibble
+                    // Send the lower nibble of the function set command
                     HLCD_StaticSendCommand(LOW_NIBBLE(HLCD_Fixed1_FunctionSet_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
                 }
 
+                // Change LCD enable state to on
                 Global_LCDEnable_State = LCD_enuEnableOn;
+                // Set the enable bit of the LCD to on
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
             } 
             else 
             {
+                // Change LCD enable state to off
                 Global_LCDEnable_State = LCD_enuEnableOff;
+                // Set the enable bit of the LCD to off
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
+                // Check if it's time to move to the next stage of initialization
                 if (send_higher_nibble) 
                 {
+                    // Move to the next stage of initialization
                     Global_LCDInit_State = Second_Part_FUNCTION_SET;
                 }
             }
@@ -240,26 +277,35 @@ void HLCD_vidInitProcess()
         }
         break;
         
+        // Case for the second part of the function set
         case Second_Part_FUNCTION_SET: 
         {
 #if HLCD_BIT_MODE == HLCD_enu8BIT_MODE
             // No action needed in 8-bit mode for the second part
 #elif HLCD_BIT_MODE == HLCD_enu4BIT_MODE
+            // Check if the LCD enable state is off
             if (Global_LCDEnable_State == LCD_enuEnableOff) {
+                // Check if it's time to send the higher or lower nibble
                 if (send_higher_nibble) {
-                    // Send the higher nibble
+                    // Send the higher nibble of the function set command
                     HLCD_StaticSendCommand(HIGH_NIBBLE(HLCD_FUNCTION_SET_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
                 } else {
-                    // Send the lower nibble
+                    // Send the lower nibble of the function set command
                     HLCD_StaticSendCommand(LOW_NIBBLE(HLCD_FUNCTION_SET_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
                 }
 
+                // Change LCD enable state to on
                 Global_LCDEnable_State = LCD_enuEnableOn;
+                // Set the enable bit of the LCD to on
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
             } else {
+                // Change LCD enable state to off
                 Global_LCDEnable_State = LCD_enuEnableOff;
+                // Set the enable bit of the LCD to off
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
+                // Check if it's time to move to the next stage of initialization
                 if (send_higher_nibble) {
+                    // Move to the next stage of initialization
                     Global_LCDInit_State = DISPLAY_ON_OFF;
                 }
             }
@@ -642,7 +688,3 @@ void HLCD_vidClearProc  (void)
    }
 
 }
-
-
- /***************************************End Of Asynch Functions *********************************************/
- 
