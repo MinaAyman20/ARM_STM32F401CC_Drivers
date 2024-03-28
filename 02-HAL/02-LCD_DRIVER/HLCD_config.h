@@ -23,14 +23,14 @@
  *  2-HLCD_enuCURSOR_OFF
  * 
  */
-#define HLCD_CURSOR_MODE                HLCD_enuCURSOR_ON
+#define HLCD_CURSOR_MODE                HLCD_enuCURSOR_OFF
 
 /*
  *  CURSOR_BLINKING_MODE  Options
  *  1-HLCD_enuCURSOR_BLINKING_ON
  *  2-HLCD_enuCURSOR_BLINKING_OFF
  */
-#define HLCD_CURSOR_BLINKING_MODE       HLCD_enuCURSOR_BLINKING_ON
+#define HLCD_CURSOR_BLINKING_MODE       HLCD_enuCURSOR_BLINKING_OFF
 
 /*
  *  BIT_MODE  Options
@@ -62,4 +62,4 @@
 
 
 
-#endif 
+#endif

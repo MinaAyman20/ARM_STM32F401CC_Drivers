@@ -10,29 +10,36 @@
 
 #include "MCAL/MGPIO/MGPIO_interface.h"
 
+// Definitions for LCD modes
 #define HLCD_enu4BIT_MODE            0
 #define HLCD_enu8BIT_MODE            1
 
+// Definitions for LCD display control
 #define HLCD_enuDISPLAY_OFF          0 
 #define HLCD_enuDISPLAY_ON           1
 
+// Definitions for cursor blinking control
 #define HLCD_enuCURSOR_BLINKING_OFF  0
 #define HLCD_enuCURSOR_BLINKING_ON   1
 
+// Definitions for cursor control
 #define HLCD_enuCURSOR_OFF           0
 #define HLCD_enuCURSOR_ON            1
 
+// Definitions for character font modes
 #define HLCD_enu5X8                  0
 #define HLCD_enu5X11                 1
 
+// Definitions for number of display lines
 #define HLCD_enuONE_LINE             0
 #define HLCD_enuTWO_LINE             1
 
+// Definitions for shifting direction
 #define HLCD_SHIFTING_LEFT           0x18
 #define HLCD_SHIFTING_RIGHT          0x1C
 #define HLCD_CLEAR_DISPLAY           0x01
 
-
+// Definitions for LCD pin numbers
 #define LCD_D0_PIN                  0
 #define LCD_D1_PIN                  1
 #define LCD_D2_PIN                  2
@@ -45,7 +52,7 @@
 #define LCD_RW_PIN                  9
 #define LCD_RS_PIN                  10
 
-
+// Enumeration for CGRAM block numbers
 typedef enum
 {
  HLCD_enuBlockNumber0,
@@ -58,6 +65,7 @@ typedef enum
  HLCD_enuBlockNumber7
 }HLCD_enuCGRAM_BlockNumber;
 
+// Enumeration for DDRAM Y position
 typedef enum
 {
  HLCD_enuPosition0,
@@ -78,12 +86,14 @@ typedef enum
  HLCD_enuPosition15
 }HLCD_enuDDRAM_YPosition;
 
+// Enumeration for DDRAM X position
 typedef enum
 {
  HLCD_enuFirstLine,
  HLCD_enuSecondLine
 }HLCD_enuDDRAM_XPosition;
 
+// Enumeration for error status
 typedef enum
 {
  HLCD_enuOK,
@@ -95,12 +105,14 @@ typedef enum
  HLCD_enuNOK
 }HLCD_enuErrorStatus_t;
 
+// Structure for LCD pin configuration
 typedef struct
 {
    u32   LCD_PortNum;
    u32   LCD_PinNum;
 } HLCD_strLCDConfigration;
 
+// Structure for LCD pin configuration
 typedef struct 
 { 
     HLCD_strLCDConfigration DATABIT0 ;
@@ -114,13 +126,14 @@ typedef struct
     HLCD_strLCDConfigration RS       ;
     HLCD_strLCDConfigration RW       ;
     HLCD_strLCDConfigration ENABLE   ;
-} HLCD_strLCDPinConfigration         ;
+} HLCD_strLCDPinConfigration;
 
 
-/*********************************************Ashync***********************************************************/
+// Function prototypes
 void HLCD_vidPinInit(void);
 void HLCD_voidLCDInitASYNCH(void);
 HLCD_enuErrorStatus_t HLCD_voidLCD_WriteStringAsync(const char* String,u8 Size ,u8 X_Postion,u8 Y_Postion);
 HLCD_enuErrorStatus_t HLCD_voidLCD_ClearScreen(void);
+
 
 #endif

@@ -298,7 +298,9 @@ void HLCD_vidInitProcess()
                 Global_LCDEnable_State = LCD_enuEnableOn;
                 // Set the enable bit of the LCD to on
                 HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
-            } else {
+            }
+             else 
+            {
                 // Change LCD enable state to off
                 Global_LCDEnable_State = LCD_enuEnableOff;
                 // Set the enable bit of the LCD to off
@@ -330,7 +332,9 @@ void HLCD_vidInitProcess()
                 if (send_higher_nibble) {
                     // Send the higher nibble
                     HLCD_StaticSendCommand(HIGH_NIBBLE(HLCD_DISPLAY_ON_OFF_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
-                } else {
+                } 
+                else
+                 {
                     // Send the lower nibble
                     HLCD_StaticSendCommand(LOW_NIBBLE(HLCD_DISPLAY_ON_OFF_4BIT_CMD), LCD_RESETVALUE, LCD_RESETVALUE);
                 }
@@ -474,7 +478,7 @@ HLCD_enuErrorStatus_t HLCD_voidLCD_WriteStringAsync(const char* String,u8 Size ,
 	{
 		Ret_enuLCDErrorStatus = HLCD_enuDDRAM_XPositionError ;
 	}
-	else if(Y_Postion >  HLCD_enuPosition15 )
+	else if(Y_Postion > HLCD_enuPosition15 )
 	{
 		Ret_enuLCDErrorStatus = HLCD_enuDDRAM_YPositionError ;
 	}
@@ -512,52 +516,57 @@ HLCD_enuErrorStatus_t HLCD_voidLCD_WriteStringAsync(const char* String,u8 Size ,
         }
         break;
 
-        case Write_SetPostion:
-      {
-        u8 Copy_u8Location = 0;
-        if (LCD_strUsrData.X_Postion == HLCD_enuFirstLine) {
-            Copy_u8Location = LCD_strUsrData.Y_Postion;
-        } else {
-            // Increment 0x40 to the address to go to the first position of the second line
-            Copy_u8Location = LCD_strUsrData.Y_Postion + 0x40;
-        }
+case Write_SetPostion:
+{
+    static u32 Copy_u32Location = 0;
+    if (LCD_strUsrData.X_Postion == HLCD_enuFirstLine)
+     {
+        Copy_u32Location = LCD_strUsrData.Y_Postion;
+     }
+     else 
+     {
+        // Increment 0x40 to the address to go to the first position of the second line
+        Copy_u32Location = LCD_strUsrData.Y_Postion + 0x40;
+     }
 
-        // Send command to go to position in DDRAM
+    // Send command to go to position in DDRAM
 #if HLCD_BIT_MODE == HLCD_enu8BIT_MODE
-        if (Global_LCDEnable_State == LCD_enuEnableOff) {
-            HLCD_StaticSendCommand(Copy_u8Location + 128, LCD_RESETVALUE, LCD_RESETVALUE);
-            Global_LCDEnable_State = LCD_enuEnableOn;
-            HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
+    Copy_u32Location= Copy_u32Location + 128;
+    if (Global_LCDEnable_State == LCD_enuEnableOff) {
+        HLCD_StaticSendCommand(Copy_u32Location, LCD_RESETVALUE, LCD_RESETVALUE); // Corrected variable name here
+        Global_LCDEnable_State = LCD_enuEnableOn;
+        HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
+    } else {
+        Global_LCDEnable_State = LCD_enuEnableOff;
+        HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
+        Global_LCDWrite_State = Write_Character;
+    }
+#elif HLCD_BIT_MODE == HLCD_enu4BIT_MODE
+    Copy_u32Location= Copy_u32Location + 128;
+    if (Global_LCDEnable_State == LCD_enuEnableOff)
+    {
+        if (send_higher_nibble) {
+            // Send the higher nibble
+            HLCD_StaticSendCommand(HIGH_NIBBLE(Copy_u32Location), LCD_RESETVALUE, LCD_RESETVALUE);
         } else {
-            Global_LCDEnable_State = LCD_enuEnableOff;
-            HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
+            // Send the lower nibble
+            HLCD_StaticSendCommand(LOW_NIBBLE(Copy_u32Location), LCD_RESETVALUE, LCD_RESETVALUE);
+        }
+        Global_LCDEnable_State = LCD_enuEnableOn;
+        HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
+    } 
+    else
+    {
+        Global_LCDEnable_State = LCD_enuEnableOff;
+        HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
+        if (send_higher_nibble) 
+        {
             Global_LCDWrite_State = Write_Character;
         }
-#elif HLCD_BIT_MODE == HLCD_enu4BIT_MODE
-        if (Global_LCDEnable_State == LCD_enuEnableOff)
-        {
-            if (send_higher_nibble) {
-                // Send the higher nibble
-                HLCD_StaticSendCommand(HIGH_NIBBLE(Copy_u8Location + 128), LCD_RESETVALUE, LCD_RESETVALUE);
-            } else {
-                // Send the lower nibble
-                HLCD_StaticSendCommand(LOW_NIBBLE(Copy_u8Location + 128), LCD_RESETVALUE, LCD_RESETVALUE);
-            }
-
-            Global_LCDEnable_State = LCD_enuEnableOn;
-            HLCD_vidStaticSetEnableBit(LCD_enuEnableOn);
-        } 
-        else
-        {
-            Global_LCDEnable_State = LCD_enuEnableOff;
-            HLCD_vidStaticSetEnableBit(LCD_enuEnableOff);
-            if (send_higher_nibble) {
-                Global_LCDWrite_State = Write_Character;
-            }
-        }
+    }
 #endif
-      }
-    break;
+}
+break;
 case Write_Character:
 {
 #if HLCD_BIT_MODE == HLCD_enu8BIT_MODE
