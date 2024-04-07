@@ -3,7 +3,7 @@
 /********************************************************************************************************/
 #include "LIB/STD_TYPES.h"
 #include "MCAL/MUSART/MUSART_interface.h"
-#include "MCAL/MUSART/MUSART_config.h"
+#include "CFG/MUSART/MUSART_config.h"
 #include "MCAL/MUSART/MUSART_priv.h"
 
 
@@ -434,10 +434,10 @@ MUSART_enuErrorStatus MUSART_enuSendBufferAsync(u32 USART_ID,u8* USART_BUFFER,u1
              TxBuffer.Buffer.Size = LENGTH;
              TxBuffer.CB = CB;       
              
-             USART -> CR1  |= (1 << CR1_TXIE);    // Enable USART1 transmission interrupt (Transmit Interrupt Enable)
-             USART -> CR1  |= (1 << CR1_TCIE );   // Enable USART1 transmission complete interrupt (Transmission Complete Interrupt Enable)
              USART -> DR = TxBuffer.Buffer.Data[0];
              TxBuffer.Buffer.Pos ++ ;
+             USART -> CR1   |= (1 << CR1_TXIE);    // Enable USART1 transmission interrupt (Transmit Interrupt Enable)
+             USART -> CR1   |= (1 << CR1_TCIE );   // Enable USART1 transmission complete interrupt (Transmission Complete Interrupt Enable)
         }
         else
     {
@@ -489,37 +489,45 @@ MUSART_enuErrorStatus MUSART_enuRecieveBufferAsync(u32 USART_ID,u8* USART_BUFFER
 void USART1_IRQHandler(void)
 {   
    volatile USARTReg_t* USART1 = USART_PORTS[USART_1];
-    if (USART1->SR & SR_TXE_MASK)
+    if (USART1->SR & SR_TXE_MASK && TxBuffer.State == TX_STATE_BUSY)
     {
         if(TxBuffer.Buffer.Pos < TxBuffer.Buffer.Size)
-        {
-            USART1 -> DR = TxBuffer.Buffer.Data[TxBuffer.Buffer.Pos];
-            TxBuffer.Buffer.Pos++ ;
+        {  
+               USART1->DR = TxBuffer.Buffer.Data[TxBuffer.Buffer.Pos];
+               TxBuffer.Buffer.Pos++ ;
+        } 
+        else if (TxBuffer.Buffer.Pos == TxBuffer.Buffer.Size)
+        {   
+            //USART1->SR &= ~(1 << SR_TXE);     // Clear Transmit data register empty Flag
+            //USART1->CR1 &= ~(1 << CR1_TCIE);   // Disable USART transmission complete interrupt
+            USART1->CR1 &= ~(1 << CR1_TXIE);    // Disable USART transmission interrupt
+            TxBuffer.State = TX_STATE_READY;
+            if(TxBuffer.CB)
+            {
+            TxBuffer.CB();
+            }
+
         }
         else
         {
-             //USART1->SR &= (~(SR_TXE_MASK));
-             USART1->CR1 &= ~(1 << CR1_TXIE); // Disable USART transmission interrupt
-             USART1->CR1 &= ~(1 << CR1_TCIE); // Disable USART transmission complete interrupt
-             TxBuffer.State = TX_STATE_READY;
-             if(TxBuffer.CB)
-             {
-                TxBuffer.CB();
-             }
 
         }
     }
+    
+
     if(USART1->SR & SR_RXNE_MASK)
     {
-        if(RxBuffer.Buffer.Pos < RxBuffer.Buffer.Size)
+        if(RxBuffer.Buffer.Pos < RxBuffer.Buffer.Size-1)
         {
               RxBuffer.Buffer.Data[RxBuffer.Buffer.Pos] = USART1 -> DR;
               RxBuffer.Buffer.Pos++ ;
         }
-        else
-        {
-             //USART1->SR &= (~(SR_RXNE_MASK));
-             USART1->CR1 &= ~(1 << CR1_RXNEIE); // Disable USART receive interrupt
+        else if (RxBuffer.Buffer.Pos == RxBuffer.Buffer.Size-1)
+        {    
+             RxBuffer.Buffer.Data[RxBuffer.Buffer.Pos] = USART1 -> DR;
+             USART1->SR &= ~(1<<SR_RXNE);        // Clear Read data register not empty
+             USART1->CR1 &= ~(1 << CR1_RXNEIE);  // Disable USART receive interrupt
+             
              RxBuffer.State = RX_STATE_READY;
              if(RxBuffer.CB)
              {
