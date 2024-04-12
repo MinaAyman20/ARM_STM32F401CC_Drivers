@@ -22,6 +22,9 @@
 
 #define GPIO_SHIFTING_VALUE_ONE       0x00000001
 
+#define AF_SHIFT_VALUE                0x04
+#define AF_PINS_PER_PORT              0x08
+
 #define GPIO_PORT_MAX                 5 
 #define GPIO_PIN_MAX                  16 
 
@@ -99,12 +102,27 @@ MGPIO_enuErrorStatus_t MGPIO_enuSetPinConfig (MGPIO_PIN_config_t* Add_strPinConf
 		LOC_u32InputTypeValue &= ~((GPIO_PUPD_SHIFTING_MASK)<<(GPIO_PUPD_MASK * Add_strPinConfg->GPIOPin));
 		LOC_u32InputTypeValue |= (Add_strPinConfg->GPIO_INPUTTYPE<<(GPIO_PUPD_MASK * Add_strPinConfg->GPIOPin));
         GPIO_PORT-> PUPDR = LOC_u32InputTypeValue;
+		
+		if(Add_strPinConfg->GPIOMode == GPIO_AF)
+		{
+			u32 AF_PIN_OFFSET = 0;
+            AF_PIN_OFFSET = ((Add_strPinConfg->GPIOPin) % (AF_PINS_PER_PORT)) * AF_SHIFT_VALUE;
+
+			if(Add_strPinConfg->GPIOPin <= GPIO_PIN7)
+			{
+				 GPIO_PORT-> AFRL |= Add_strPinConfg-> GPIOAlternative << AF_PIN_OFFSET ;
+			}
+			else
+			{
+				 GPIO_PORT-> AFRH |= Add_strPinConfg-> GPIOAlternative << AF_PIN_OFFSET ;
+			}
+		}
 	 }
 	 else if (Add_strPinConfg->GPIOMode == GPIO_INPUT)
 	 { 
 		LOC_u32InputTypeValue = GPIO_PORT-> PUPDR;
-		LOC_u32InputTypeValue &= ~((GPIO_PUPD_SHIFTING_MASK)<<(GPIO_PUPD_MASK * Add_strPinConfg->GPIOPin));
-		LOC_u32InputTypeValue |= (Add_strPinConfg->GPIO_INPUTTYPE<<(GPIO_PUPD_MASK * Add_strPinConfg->GPIOPin));
+		LOC_u32InputTypeValue &= ~((GPIO_PUPD_MASK)<<(GPIO_PUPD_SHIFTING_MASK * Add_strPinConfg->GPIOPin));
+		LOC_u32InputTypeValue |= ((Add_strPinConfg->GPIO_INPUTTYPE)<<(GPIO_PUPD_SHIFTING_MASK * Add_strPinConfg->GPIOPin));
         GPIO_PORT-> PUPDR = LOC_u32InputTypeValue;
 	 }
 	 

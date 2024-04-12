@@ -36,6 +36,18 @@
 // #define GPIO_PIN14   0x00002000
 // #define GPIO_PIN15   0x00004000
 
+
+#define GPIO_AF_SYS                0
+#define GPIO_AF_TIM_1_2            1
+#define GPIO_AF_TIM_3_4_5          2
+#define GPIO_AF_TIM_9_10_11        3
+#define GPIO_AF_I2C                4
+#define GPIO_AF_SPI_1              5
+#define GPIO_AF_SPI_3              6
+#define GPIO_AF_USART_1_2          7
+#define GPIO_AF_USART_6            8
+#define GPIO_AF_I2C_2              9
+
 // Definition of GPIO pins
 #define GPIO_PIN0    0
 #define GPIO_PIN1    1
@@ -100,6 +112,7 @@ typedef struct
 	u32  GPIO_OUTPUTTYPE;    // GPIO pin output type
 	u32  GPIO_INPUTTYPE;     // GPIO pin input type
 	u32  GPIOSpeed;          // GPIO pin speed
+	u32  GPIOAlternative;    
 
 }MGPIO_PIN_config_t;
 
@@ -154,4 +167,4 @@ MGPIO_enuErrorStatus_t MGPIO_enuSetPinValue(u32 Copy_u32Port, u32 Copy_u32Pin, u
  */
 MGPIO_enuErrorStatus_t MGPIO_getPinValue(u32 Copy_u32Port, u32 Copy_u32Pin, u32 *Copy_pu32Pin);
 
-#endif /* MCAL_MGPIO_MGPIO_INTERFACE_H_ */
+#endif
