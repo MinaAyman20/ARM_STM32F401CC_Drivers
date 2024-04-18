@@ -44,6 +44,8 @@ typedef enum
     MUSART_enuNOK                , // Enumeration for operation failure
     MUSART_enuWRONG_UARTID       ,
     MUSART_enuNULL_POINTER       ,
+    MUSART_enuTx_BufferBusy      ,
+    MUSART_enuRx_BufferBusy      ,
    
 }MUSART_enuErrorStatus;            // Enumeration for error status
 
